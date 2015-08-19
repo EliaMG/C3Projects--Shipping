@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe ShippingsController, type: :controller do
   describe "get #quotes" do
     before :each do
-      get :quotes, origin: "Texarkana TX 75505 US", destination: "Seattle WA 98101 US", packages: {1 =>{:quantity => 4, :weight => 5, :length => 6, :height => 6, :width => 6}, 2 => {:quantity => 3, :weight => 5, :length => 6, :height => 6, :width => 6}, 3 => {:quantity => 2, :weight => 5, :length => 6, :height => 6, :width => 6}}
+      get :quotes, origin: {:origin_city =>"Texarkana", :origin_state =>"TX", :origin_zip =>"75505", :origin_country =>"US"}, destination: {:destination_city =>"Seattle", :destination_state =>"WA", :destination_zip =>"98115", :destination_country =>"US"}, packages: {1 =>{:quantity => "1", :weight => "6794.0", :length => "4.0", :width =>"13.0", :height =>"70.0"}}
     end
 
     it "is successful" do
@@ -12,6 +12,16 @@ RSpec.describe ShippingsController, type: :controller do
 
     it "returns json" do
       expect(response.header["Content-Type"]).to include 'application/json'
+    end
+  end
+
+  describe "munging the request that we receive from bEtsy" do
+    before (:each) do
+      @response = {origin: {:origin_city =>"Texarkana", :origin_state =>"TX", :origin_zip =>"75505", :origin_country =>"US"}, destination: {:destination_city =>"Seattle", :destination_state =>"WA", :destination_zip =>"98115", :destination_country =>"US"}, packages: {1 =>{:quantity => "1", :weight => "6794.0", :length => "4.0", :width =>"13.0", :height =>"70.0"}}}
+    end
+
+    it "creates a ActiveShipping Location object for origin" do
+      expect(controller.send(:munge_request, @response)).to be_an_instance_of ActiveShipping::Location
     end
   end
 end
