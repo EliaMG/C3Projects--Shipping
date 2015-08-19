@@ -7,6 +7,7 @@ RSpec.describe ShippingsController, type: :controller do
     end
 
     it "is successful" do
+      # binding.pry
       expect(response.response_code).to eq 200
     end
 
@@ -21,7 +22,15 @@ RSpec.describe ShippingsController, type: :controller do
     end
 
     it "creates a ActiveShipping Location object for origin" do
-      expect(controller.send(:munge_request, @response)).to be_an_instance_of ActiveShipping::Location
+      expect(controller.send(:munge_origin, @response)).to be_an_instance_of ActiveShipping::Location
+    end
+
+    it "creates a ActiveShipping Location object for destination" do
+      expect(controller.send(:munge_destination, @response)).to be_an_instance_of ActiveShipping::Location
+    end
+
+    it "creates a ActiveShipping Package object for packages" do
+      expect(controller.send(:munge_packages, @response)).to be_an_instance_of ActiveShipping::Package
     end
   end
 end
