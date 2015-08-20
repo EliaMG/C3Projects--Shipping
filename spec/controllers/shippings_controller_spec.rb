@@ -9,7 +9,9 @@ RSpec.describe ShippingsController, type: :controller do
 
     it "is successful" do
       # binding.pry
-      expect(response.response_code).to eq 200
+      VCR.use_cassette 'controller/quotes_response' do
+        expect(response.response_code).to eq 200
+      end
     end
 
     it "returns json" do

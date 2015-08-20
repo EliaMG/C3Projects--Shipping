@@ -59,3 +59,9 @@ end
 group :production do
   gem 'pg'
 end
+
+group :test do
+  # API testing
+  gem 'vcr'
+  gem 'webmock'
+end
