@@ -40,18 +40,15 @@ class ShippingsController < ApplicationController
   def munge_packages(request)
 
     package_array = []
-    index = 1
 
-    request[:packages].each do |package|
-      dimensions = package[index]
-      weight = dimensions[:weight].to_i
-      height = dimensions[:height].to_i
-      length = dimensions[:length].to_i
-      width = dimensions[:width].to_i
+    request[:packages].each_value do |package|
+      weight = package[:weight].to_i
+      height = package[:height].to_i
+      length = package[:length].to_i
+      width = package[:width].to_i
 
       new_package = ActiveShipping::Package.new(weight, [height, length, width])
 
-      index +=1
       package_array << new_package
     end
 
