@@ -62,7 +62,8 @@ class ShippingsController < ApplicationController
     munge_packages(request)
 
     fedex = fedex_cred
-    fedex_quote = fedex.find_rates(@origin, @destination, @packages)
+    fedex_hashymash= fedex.find_rates(@origin, @destination, @packages)
+    fedex_quote = fedex_hashymash.rates.sort_by(&:price).collect {|rate| [rate.service_name, rate.price, rate.delivery_date]}
   end
 
   def get_ups_quote(request)
@@ -71,7 +72,8 @@ class ShippingsController < ApplicationController
     munge_packages(request)
 
     ups = ups_cred
-    ups_quote = ups.find_rates(@origin, @destination, @packages)
+    ups_hashymash = ups.find_rates(@origin, @destination, @packages)
+    ups_quote = ups_hashymash.rates.sort_by(&:price).collect {|rate| [rate.service_name, rate.price, rate.delivery_date]}
   end
 
   def ups_cred
