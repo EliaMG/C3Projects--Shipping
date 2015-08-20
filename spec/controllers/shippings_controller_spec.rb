@@ -43,4 +43,16 @@ RSpec.describe ShippingsController, type: :controller do
       expect(controller.send(:get_ups_quote, request)).to be_an_instance_of ActiveShipping::RateResponse
     end
   end
+
+  describe "get FedEx quote" do
+
+    it "creates a FedEx carrier instance with valid credentials" do
+      expect(controller.send(:fedex_cred).valid_credentials?).to eq true
+      expect(controller.send(:fedex_cred)).to be_an_instance_of ActiveShipping::FedEx
+    end
+
+    it "returns a FedEx response hashy mash" do
+      expect(controller.send(:get_fedex_quote, request)).to be_an_instance_of ActiveShipping::RateResponse
+    end
+  end
 end

@@ -4,7 +4,7 @@ class ShippingsController < ApplicationController
     @request = request.parameters
     ups_response = get_ups_quote(@request)
     fedex_response = get_fedex_quote(@request)
-    render json: {your_params: request.parameters, party: @munged}
+    render json: {ups: ups_response, fedex: fedex_response}
   end
 
   private
@@ -59,8 +59,13 @@ class ShippingsController < ApplicationController
   end
 
 
-  def get_fedex_quote
+  def get_fedex_quote(request)
+    munge_origin(request)
+    munge_destination(request)
+    munge_packages(request)
 
+    fedex = fedex_cred
+    fedex_quote = fedex.find_rates(@origin, @destination, @packages)
   end
 
   def get_ups_quote(request)
@@ -76,6 +81,11 @@ class ShippingsController < ApplicationController
   def ups_cred
     ActiveShipping::UPS.new(login: ENV["UPS_LOGIN"], password: ENV["UPS_PASSWORD"],
     key: ENV["UPS_KEY"])
+  end
+
+  def fedex_cred
+    ActiveShipping::FedEx.new(login: ENV["FEDEX_LOGIN"], password: ENV["FEDEX_PASSWORD"],
+    key: ENV["FEDEX_KEY"], meter:  ENV["FEDEX_METER"], account:  ENV["FEDEX_ACCOUNT"], test: true)
   end
 
 end
