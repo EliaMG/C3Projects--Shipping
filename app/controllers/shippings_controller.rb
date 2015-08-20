@@ -5,7 +5,7 @@ class ShippingsController < ApplicationController
     api_call = request.parameters
     ups_response = get_ups_quote(api_call)
     fedex_response = get_fedex_quote(api_call)
-    render json: {ups: ups_response, fedex: fedex_response}
+    render json: {ups: ups_response, fedex: fedex_response}, status: :ok
   end
 
   def audit
@@ -18,10 +18,10 @@ class ShippingsController < ApplicationController
     shipping.est_date = audit_data[:est_date].to_datetime
     shipping.order_id = audit_data[:order_id].to_i
     shipping.store = audit_data[:store]
-    
+
     shipping.save
 
-    render json: {}
+    render json: {}, status: :no_content
   end
 
   private
