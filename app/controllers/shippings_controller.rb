@@ -40,16 +40,19 @@ class ShippingsController < ApplicationController
   def munge_packages(request)
 
     package_array = []
-
+    # would be nice to extract the to_i if time, this is how the data comes in through json
+    
     request[:packages].each_value do |package|
-      weight = package[:weight].to_i
-      height = package[:height].to_i
-      length = package[:length].to_i
-      width = package[:width].to_i
+      package[:quantity].to_i.times do
+        weight = package[:weight].to_i
+        height = package[:height].to_i
+        length = package[:length].to_i
+        width = package[:width].to_i
 
-      new_package = ActiveShipping::Package.new(weight, [height, length, width])
+        new_package = ActiveShipping::Package.new(weight, [height, length, width])
 
-      package_array << new_package
+        package_array << new_package
+      end
     end
 
     @packages = package_array
