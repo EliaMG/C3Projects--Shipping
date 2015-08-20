@@ -10,7 +10,18 @@ class ShippingsController < ApplicationController
 
   def audit
     audit_data = request.parameters
-    binding.pry
+    shipping = Shipping.new
+
+    shipping.carrier = audit_data[:carrier]
+    shipping.service_name = audit_data[:service_name]
+    shipping.price = audit_data[:price].to_i
+    shipping.est_date = audit_data[:est_date].to_datetime
+    shipping.order_id = audit_data[:order_id].to_i
+    shipping.store = audit_data[:store]
+    
+    shipping.save
+
+    render json: {}
   end
 
   private
