@@ -18,19 +18,19 @@ RSpec.describe ShippingsController, type: :controller do
 
   describe "munging the request that we receive from bEtsy" do
     before (:each) do
-      @response = {origin: {:origin_city =>"Texarkana", :origin_state =>"TX", :origin_zip =>"75505", :origin_country =>"US"}, destination: {:destination_city =>"Seattle", :destination_state =>"WA", :destination_zip =>"98115", :destination_country =>"US"}, packages: {1 =>{:quantity => "1", :weight => "6794.0", :length => "4.0", :width =>"13.0", :height =>"70.0"}}}
+      @request = {origin: {:origin_city =>"Texarkana", :origin_state =>"TX", :origin_zip =>"75505", :origin_country =>"US"}, destination: {:destination_city =>"Seattle", :destination_state =>"WA", :destination_zip =>"98115", :destination_country =>"US"}, packages: {1 =>{:quantity => "1", :weight => "6794.0", :length => "4.0", :width =>"13.0", :height =>"70.0"}}}
     end
 
     it "creates a ActiveShipping Location object for origin" do
-      expect(controller.send(:munge_origin, @response)).to be_an_instance_of ActiveShipping::Location
+      expect(controller.send(:munge_origin, @request)).to be_an_instance_of ActiveShipping::Location
     end
 
     it "creates a ActiveShipping Location object for destination" do
-      expect(controller.send(:munge_destination, @response)).to be_an_instance_of ActiveShipping::Location
+      expect(controller.send(:munge_destination, @request)).to be_an_instance_of ActiveShipping::Location
     end
 
     it "creates a ActiveShipping Package object for packages" do
-      expect(controller.send(:munge_packages, @response)).to be_an_instance_of ActiveShipping::Package
+      expect(controller.send(:munge_packages, @request).first).to be_an_instance_of ActiveShipping::Package
     end
   end
 end
