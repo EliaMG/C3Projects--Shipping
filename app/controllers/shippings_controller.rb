@@ -75,7 +75,6 @@ class ShippingsController < ApplicationController
 
     ups = ups_cred
     ups_quote = ups.find_rates(@origin, @destination, @packages)
-
   end
 
   def ups_cred
