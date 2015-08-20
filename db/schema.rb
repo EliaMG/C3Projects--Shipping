@@ -11,6 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 20150820210131) do
+
+  create_table "shippings", force: :cascade do |t|
+    t.string   "carrier"
+    t.integer  "price"
+    t.datetime "est_date"
+    t.string   "service_name"
+    t.integer  "order_id"
+    t.string   "store"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
 
 end

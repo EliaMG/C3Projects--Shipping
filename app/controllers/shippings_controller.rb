@@ -1,10 +1,16 @@
 class ShippingsController < ApplicationController
+  skip_before_filter :verify_authenticity_token
 
   def quotes
-    @request = request.parameters
-    ups_response = get_ups_quote(@request)
-    fedex_response = get_fedex_quote(@request)
+    api_call = request.parameters
+    ups_response = get_ups_quote(api_call)
+    fedex_response = get_fedex_quote(api_call)
     render json: {ups: ups_response, fedex: fedex_response}
+  end
+
+  def audit
+    audit_data = request.parameters
+    binding.pry
   end
 
   private
@@ -41,7 +47,7 @@ class ShippingsController < ApplicationController
 
     package_array = []
     # would be nice to extract the to_i if time, this is how the data comes in through json
-    
+
     request[:packages].each_value do |package|
       package[:quantity].to_i.times do
         weight = package[:weight].to_i

@@ -78,4 +78,13 @@ RSpec.describe ShippingsController, type: :controller do
       end
     end
   end
+
+  describe "it receives chosen shipping option for audit" do
+
+    it "gets an object from the store" do
+      post :audit, carrier: "FedEx", service_name: "FedEx Next Day", price: "12345", est_date: "2015-08-20 20:15:19", order_id: "27", store: "TuxBetsy"
+
+      expect(request.class).to eq Hash
+    end
+  end
 end
