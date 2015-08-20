@@ -12,12 +12,6 @@ RSpec.describe ShippingsController, type: :controller do
         expect(response.response_code).to eq 200
       end
     end
-
-    it "returns json" do
-      VCR.use_cassette 'controller/quotes_response' do
-        expect(response.header["Content-Type"]).to include 'application/json'
-      end
-    end
   end
 
   describe "munging the request that we receive from bEtsy" do
@@ -44,9 +38,11 @@ RSpec.describe ShippingsController, type: :controller do
       end
     end
 
-    it "returns a UPS response hashy mash" do
+    it "returns an array of UPS options" do
       VCR.use_cassette 'controller/ups_hashymash' do
-        expect(controller.send(:get_ups_quote, request)).to be_an_instance_of ActiveShipping::RateResponse
+        quote_response = (controller.send(:get_ups_quote, request))
+        expect(quote_response).to be_an_instance_of Array
+        expect(quote_response[1]).to include("UPS Three-Day Select")
       end
     end
   end
@@ -60,9 +56,11 @@ RSpec.describe ShippingsController, type: :controller do
       end
     end
 
-    it "returns a FedEx response hashy mash" do
+    it "returns an array of FedEx options" do
       VCR.use_cassette 'controller/fedex_hashymash' do
-        expect(controller.send(:get_fedex_quote, request)).to be_an_instance_of ActiveShipping::RateResponse
+        quote_response = (controller.send(:get_fedex_quote, request))
+        expect(quote_response).to be_an_instance_of Array
+        expect(quote_response[1]).to include("FedEx Priority Overnight")
       end
     end
   end
