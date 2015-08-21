@@ -4,7 +4,7 @@ require 'vcr_setup'
 RSpec.describe ShippingsController, type: :controller do
   let(:request) {{origin: {:origin_city =>"Texarkana", :origin_state =>"TX", :origin_zip =>"75505", :origin_country =>"US"}, destination: {:destination_city =>"Seattle", :destination_state =>"WA", :destination_zip =>"98115", :destination_country =>"US"}, packages: {1 =>{:quantity => "1", :weight => "6794.0", :length => "4.0", :width =>"13.0", :height =>"70.0"}, 2 =>{:quantity => "2", :weight => "6794.0", :length => "4.0", :width =>"13.0", :height =>"70.0"}}}}
 
-  describe "get #quotes" do
+  describe "GET #quotes" do
 
     it "is successful" do
       VCR.use_cassette 'controller/quotes_response' do
@@ -86,12 +86,26 @@ RSpec.describe ShippingsController, type: :controller do
     end
   end
 
-  describe "it receives chosen shipping option for audit" do
+  describe "POST #audit" do
+    context "with valid params" do
 
-    it "gets an object from the store" do
-      post :audit, carrier: "FedEx", service_name: "FedEx Next Day", price: "12345", est_date: "2015-08-20 20:15:19", order_id: "27", store: "TuxBetsy"
+      let(:valid_params) {{ carrier: "FedEx", service_name: "FedEx Next Day", price: "12345", est_date: "2015-08-20 20:15:19", order_id: "27", store: "TuxBetsy" }}
 
-      expect(request.class).to eq Hash
+      before(:each) do
+        post :audit, valid_params
+      end
+
+      it "creates a new audit record" do
+        expect(Shipping.all.count).to eq(1)
+      end
+
+      it "returns an empty object" do
+        expect(response.body).to eq("{}")
+      end
+
+      it "returns a no-content HTTP status" do
+        expect(response.response_code).to eq(204)
+      end
     end
   end
 end
