@@ -5,6 +5,7 @@ class ShippingsController < ApplicationController
     api_call = request.parameters
     ups_response = get_ups_quote(api_call)
     fedex_response = get_fedex_quote(api_call)
+    binding.pry
     render json: {ups: ups_response, fedex: fedex_response}, status: :ok
   end
 
@@ -82,7 +83,11 @@ class ShippingsController < ApplicationController
     munge_packages(request)
 
     fedex = fedex_cred
-    fedex_hashymash= fedex.find_rates(@origin, @destination, @packages)
+    begin
+      fedex_hashymash= fedex.find_rates(@origin, @destination, @packages)
+    rescue ActiveShipping::ResponseError
+      fedex_quote = "Sorry, there was an error in your FedEx request processing."
+    end
     fedex_quote = fedex_hashymash.rates.sort_by(&:price).collect {|rate| [rate.service_name, rate.price, rate.delivery_date]}
   end
 
@@ -92,7 +97,11 @@ class ShippingsController < ApplicationController
     munge_packages(request)
 
     ups = ups_cred
-    ups_hashymash = ups.find_rates(@origin, @destination, @packages)
+    begin
+      ups_hashymash = ups.find_rates(@origin, @destination, @packages)
+    rescue ActiveShipping::ResponseError
+      ups_quote = "Sorry, there was an error in your UPS request processing."
+    end
     ups_quote = ups_hashymash.rates.sort_by(&:price).collect {|rate| [rate.service_name, rate.price, rate.delivery_date]}
   end
 
