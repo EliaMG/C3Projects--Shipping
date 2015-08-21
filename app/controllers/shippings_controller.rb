@@ -27,7 +27,6 @@ class ShippingsController < ApplicationController
   private
 
   def munge_origin(request)
-
     city = request[:origin][:origin_city]
     state = request[:origin][:origin_state]
     zip = request[:origin][:origin_zip]
@@ -41,7 +40,6 @@ class ShippingsController < ApplicationController
   end
 
   def munge_destination(request)
-
     city = request[:destination][:destination_city]
     state = request[:destination][:destination_state]
     zip = request[:destination][:destination_zip]
@@ -55,10 +53,9 @@ class ShippingsController < ApplicationController
   end
 
   def munge_packages(request)
-
     package_array = []
-    # would be nice to extract the to_i if time, this is how the data comes in through json
 
+    # would be nice to extract the to_i if time, this is how the data comes in through json
     request[:packages].each_value do |package|
       package[:quantity].to_i.times do
         weight = package[:weight].to_i
@@ -75,23 +72,25 @@ class ShippingsController < ApplicationController
     @packages = package_array
   end
 
-
   def get_fedex_quote(request)
     munge_origin(request)
     munge_destination(request)
     munge_packages(request)
 
     fedex = fedex_cred
+
+    # Guard clause for ResponseErrors
     begin
       fedex_hashymash= fedex.find_rates(@origin, @destination, @packages)
     rescue ActiveShipping::ResponseError
-      carrier_error = "Sorry, there's something wrong with the carrier processing."
+      fedex_error = "Sorry, there's something wrong with the carrier processing."
     end
 
+    # Passes a quote or error to the quote method
     if fedex_hashymash
       fedex_quote = fedex_hashymash.rates.sort_by(&:price).collect {|rate| [rate.service_name, rate.price, rate.delivery_date]}
     else
-      carrier_error
+      fedex_error
     end
   end
 
@@ -101,16 +100,19 @@ class ShippingsController < ApplicationController
     munge_packages(request)
 
     ups = ups_cred
+
+    # Guard clause for ResponseErrors
     begin
       ups_hashymash = ups.find_rates(@origin, @destination, @packages)
     rescue ActiveShipping::ResponseError
-      carrier_error = "Sorry, there's something wrong with the carrier processing."
+      ups_error = "Sorry, there's something wrong with the carrier processing."
     end
 
+    # Returns a quote or error to the quote method
     if ups_hashymash
       ups_quote = ups_hashymash.rates.sort_by(&:price).collect {|rate| [rate.service_name, rate.price, rate.delivery_date]}
     else
-      carrier_error
+      ups_error
     end
   end
 
@@ -123,5 +125,4 @@ class ShippingsController < ApplicationController
     ActiveShipping::FedEx.new(login: ENV["FEDEX_LOGIN"], password: ENV["FEDEX_PASSWORD"],
     key: ENV["FEDEX_KEY"], meter:  ENV["FEDEX_METER"], account:  ENV["FEDEX_ACCOUNT"], test: true)
   end
-
 end
