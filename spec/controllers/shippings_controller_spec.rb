@@ -7,9 +7,16 @@ RSpec.describe ShippingsController, type: :controller do
   describe "get #quotes" do
 
     it "is successful" do
+      VCR.use_cassette 'controller/quotes_response' do
+        get :quotes, origin: {:origin_city =>"Texarkana", :origin_state =>"TX", :origin_zip =>"75505", :origin_country =>"US"}, destination: {:destination_city =>"Seattle", :destination_state =>"WA", :destination_zip =>"98115", :destination_country =>"US"}, packages: {1 =>{:quantity => "1", :weight => "6794.0", :length => "4.0", :width =>"13.0", :height =>"70.0"}, 2 =>{:quantity => "2", :weight => "6794.0", :length => "4.0", :width =>"13.0", :height =>"70.0"}}
+        expect(response.response_code).to eq 200
+      end
+    end
+
+    it "is not successful (due to excess weight)" do
       VCR.use_cassette 'controller/bad_response' do
         get :quotes, origin: {:origin_city =>"Texarkana", :origin_state =>"TX", :origin_zip =>"75505", :origin_country =>"US"}, destination: {:destination_city =>"Seattle", :destination_state =>"WA", :destination_zip =>"98115", :destination_country =>"US"}, packages: {1 =>{:quantity => "1", :weight => "506794.0", :length => "4.0", :width =>"13.0", :height =>"70.0"}, 2 =>{:quantity => "2", :weight => "6794.0", :length => "4.0", :width =>"13.0", :height =>"70.0"}}
-        expect(response.response_code).to eq 200
+        expect(response.body).to include "Sorry, there's something wrong with the carrier processing."
       end
     end
   end

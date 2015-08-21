@@ -5,7 +5,6 @@ class ShippingsController < ApplicationController
     api_call = request.parameters
     ups_response = get_ups_quote(api_call)
     fedex_response = get_fedex_quote(api_call)
-    binding.pry
     render json: {ups: ups_response, fedex: fedex_response}, status: :ok
   end
 
@@ -86,9 +85,14 @@ class ShippingsController < ApplicationController
     begin
       fedex_hashymash= fedex.find_rates(@origin, @destination, @packages)
     rescue ActiveShipping::ResponseError
-      fedex_quote = "Sorry, there was an error in your FedEx request processing."
+      carrier_error = "Sorry, there's something wrong with the carrier processing."
     end
-    fedex_quote = fedex_hashymash.rates.sort_by(&:price).collect {|rate| [rate.service_name, rate.price, rate.delivery_date]}
+
+    if fedex_hashymash
+      fedex_quote = fedex_hashymash.rates.sort_by(&:price).collect {|rate| [rate.service_name, rate.price, rate.delivery_date]}
+    else
+      carrier_error
+    end
   end
 
   def get_ups_quote(request)
@@ -100,9 +104,14 @@ class ShippingsController < ApplicationController
     begin
       ups_hashymash = ups.find_rates(@origin, @destination, @packages)
     rescue ActiveShipping::ResponseError
-      ups_quote = "Sorry, there was an error in your UPS request processing."
+      carrier_error = "Sorry, there's something wrong with the carrier processing."
     end
-    ups_quote = ups_hashymash.rates.sort_by(&:price).collect {|rate| [rate.service_name, rate.price, rate.delivery_date]}
+
+    if ups_hashymash
+      ups_quote = ups_hashymash.rates.sort_by(&:price).collect {|rate| [rate.service_name, rate.price, rate.delivery_date]}
+    else
+      carrier_error
+    end
   end
 
   def ups_cred
